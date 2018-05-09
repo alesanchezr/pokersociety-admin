@@ -8,6 +8,7 @@
     ],
     "require": {
         "wpackagist-plugin/advanced-custom-fields": "*",
+        "wpackagist-plugin/bulk-delete": "^5.6",
         "alesanchezr\/wpas-wordpress-dash": "dev-master",
         "wp-cli\/wp-cli": "~0.22",
         "psy\/psysh": "~0.6",

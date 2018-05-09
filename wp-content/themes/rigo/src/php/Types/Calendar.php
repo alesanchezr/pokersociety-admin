@@ -2,6 +2,7 @@
 namespace Rigo\Types;
     
 use WPAS\Types\BasePostType;
+use Rigo\Types\Tournament;
 use Exception;
 use WPAS\Messaging\WPASAdminNotifier as Notify;
 
@@ -11,8 +12,54 @@ class Calendar extends BasePostType{
     
     function initialize(){
         add_action('acf/save_post', [$this,'slug_save_post_callback'],1);
-        //add_action( 'save_post_'.self::POST_TYPE, array($this,'slug_save_post_callback'), 10, 3 );
+		add_filter( 'manage_'.self::POST_TYPE.'_posts_columns', [$this,'columns_header'] ) ;
+		add_action( 'manage_'.self::POST_TYPE.'_posts_custom_column', [$this,'columns_content'], 10, 2 );
+		add_filter( 'bulk_actions-edit-'.self::POST_TYPE, [$this,'bulk_actions'] );
+		add_filter( 'handle_bulk_actions-edit-'.self::POST_TYPE, [$this,'bulk_actions_handler'], 10, 3 );
     }
+    
+	function bulk_actions_handler( $redirect_to, $doaction, $post_ids ) {
+		global $wpdb;
+		
+		if ( $doaction !== 'delete_tournaments' ) {
+			return $redirect_to;
+		}
+	  
+		$allTheIds = [];
+		foreach ( $post_ids as $post_id ) {
+			$tournaments = Tournament::getFromCalendar($post_id);
+			$ids = array_map(function($t){
+				return $t->ID;
+			},$tournaments);
+			$allTheIds = array_merge($allTheIds, $ids);
+		}
+		$query = "DELETE FROM wp_posts WHERE ID IN(".implode(',',$allTheIds).")";
+		//debug($query);
+		$wpdb->query($query);
+		
+		Notify::success(count($allTheIds).' tournaments where deleted');
+		return $redirect_to;
+	}
+    
+	function bulk_actions($bulk_actions) {
+	  $bulk_actions['delete_tournaments'] = __( 'Delete Tournaments', 'delete_tournaments');
+	  return $bulk_actions;
+	}
+    
+	function columns_header( $columns ) {
+		$columns = array_merge($columns, [
+			'json_file' => 'JSON File'
+		]);
+	
+		return $columns;
+	}
+	function columns_content($column_name, $post_ID) {
+	    if ($column_name == 'json_file') {
+			$upload = wp_upload_dir();
+			$uploadPath = $upload['baseurl'].'/static/poker-calendar-'.$post_ID.'.json';
+	        echo '<a target="_blank" href="' . $uploadPath . '">JSON</a>';
+	    }
+	}
 
 	//function slug_save_post_callback( $post_ID, $post, $update ) {
 	function slug_save_post_callback( $post_ID ) {
@@ -45,7 +92,7 @@ class Calendar extends BasePostType{
 			if(!$result) throw new Exception('The CSV has invalid caracters or format');
 			
 			//Create the tournaments posts into wordpress
-			if($this->validateTournaments($array)) $tournaments = $this->createTournaments($array, $forceUpdate);
+			if($this->validateTournaments($array)) $tournaments = $this->createTournaments($post_ID, $array, $forceUpdate);
 			
 			//Encode into a json and save it in the uploads folder
 			$jsonURL = $this->saveJSON($post_ID,$tournaments);
@@ -132,9 +179,7 @@ class Calendar extends BasePostType{
 		return $content;
 	}
 	
-	
-	
-	function createTournaments($tournaments, $forceUpdate = false){
+	function createTournaments($calendarId, $tournaments, $forceUpdate = false){
 		
 		$changes = [];
 		$changes['updated'] = 0;
@@ -161,7 +206,7 @@ class Calendar extends BasePostType{
 				'post_name' => sanitize_title_with_dashes($t[11].'-'.$t[0]),
 				'post_status' => 'publish',
 				'post_type' => 'tournament',
-				'post_parent' => $t[9]//casino id
+				'post_parent' => $calendarId//casino id
 				];
 				
 			$post = null;
@@ -229,6 +274,7 @@ class Calendar extends BasePostType{
 		//if(!empty($value)) update_post_meta( $postId, 'wpcf-'.$key, $value ); 
 		if(!empty($value)) update_field($key, $value, $postId);
 	}
+	
 }
 
 ?>
