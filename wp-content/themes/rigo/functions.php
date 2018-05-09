@@ -19,4 +19,11 @@ require('setup_api.php');
 //including any monolitic tempaltes
 require('setup_templates.php');
 
+function my_acf_google_map_api( $api ){
+	$api['key'] = MAPS_API_KEY;
+	return $api;
+}
+
+add_filter('acf/fields/google_map/api', 'my_acf_google_map_api');
+
 WPAS\Messaging\WPASAdminNotifier::loadTransientMessages();
