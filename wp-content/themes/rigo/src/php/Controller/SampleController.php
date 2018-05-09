@@ -39,8 +39,12 @@ class SampleController{
         $post = get_post($request['id']);
         if(!$post || $post->post_type != 'calendar') return new \WP_Error( 'no_calendar', 'Invalid calendar', array( 'status' => 404 ) );
         
-        $content = file_get_contents(API_HOST.'pokersociety/wp-content/uploads/static/poker-calendar-'.$post->ID.'.json');
+        $content = file_get_contents(API_HOST.'/wp-content/uploads/static/poker-calendar-'.$post->ID.'.json');
+        if(!$content) return new \WP_Error( 'no_calendar', 'Unable to find calendar file', array( 'status' => 404 ) );
+        
         $contentArray = json_decode($content);
+        if(!$contentArray) return new \WP_Error( 'no_calendar', 'Invalid Calendar JSON Formar', array( 'status' => 404 ) );
+        
         array_shift($contentArray);
         return $contentArray;
     }
