@@ -212,6 +212,7 @@ class Calendar extends BasePostType{
 		Notify::info($changes['ignored'].' out of '.$totalTournaments.' posts where ignored (because they had known ID).');
 		Notify::info($changes['created'].' out of '.$totalTournaments.' posts where created (because they had uknown ID and H1).');
 		
+		$updateReason = '';
 		if($forceUpdate) $updateReason = ' because the "Force Update" options was enforced';
 		Notify::info($changes['updated'].' out of '.$totalTournaments.' posts where updated ('.$updateReason.').');
 		
