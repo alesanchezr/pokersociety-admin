@@ -33,11 +33,15 @@ class Calendar extends BasePostType{
 			},$tournaments);
 			$allTheIds = array_merge($allTheIds, $ids);
 		}
-		$query = "DELETE FROM wp_posts WHERE ID IN(".implode(',',$allTheIds).")";
-		//debug($query);
-		$wpdb->query($query);
+		if(count($allTheIds) > 0){
+			$query = "DELETE FROM wp_posts WHERE ID IN(".implode(',',$allTheIds).")";
+			$wpdb->query($query);
+			Notify::success(count($allTheIds).' tournaments where deleted');
+		}
+		else{
+			Notify::success('There was nothing to delete');
+		}
 		
-		Notify::success(count($allTheIds).' tournaments where deleted');
 		return $redirect_to;
 	}
     
@@ -200,19 +204,26 @@ class Calendar extends BasePostType{
 				}
 			}
 			
+			$tournamentSlug = sanitize_title_with_dashes($t[11].'-'.$t[0]);
 			$data = [
 				'post_content' => $t[12],
 				'post_title' => $t[11],
-				'post_name' => sanitize_title_with_dashes($t[11].'-'.$t[0]),
+				'post_name' => $tournamentSlug,
 				'post_status' => 'publish',
 				'post_type' => 'tournament',
 				'post_parent' => $calendarId//casino id
 				];
 				
 			$post = null;
-			if($forceUpdate and !empty($t[10]) and is_numeric($t[10])) $post = get_post($t[10]);
-			//If there is a tournament with that title, update it.
-			//if(!$post) $post = get_page_by_title($t[11], OBJECT, 'tournament');
+			if($forceUpdate){
+				if(!empty($t[10]) and is_numeric($t[10])) $post = get_post($t[10]);
+				//If there is a tournament with that title, update it.
+				$results = get_posts([
+				  'name'        => $tournamentSlug,
+				  'post_type'   => 'tournament'
+				]);
+				if(!$post and !empty($my_posts[0])) $post = $results[0];
+			} 
 			
 			if($post) 
 			{
