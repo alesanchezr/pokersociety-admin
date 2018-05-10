@@ -142,11 +142,13 @@ class Calendar extends BasePostType{
 				
 				$t = $tournaments[$i];
 				
-				//at least the tournament ID of the h1 needs to have a value
-				if(empty($t[10]) and empty($t[11])) $errors[] = "The row $i has no tournament_id and no h1 either";
+				//the date cannot be empty
+				if(empty(trim($t[0]))) $errors[] = "The row $i has no date";
+				
+				if(empty(trim($t[10])) and empty(trim($t[11]))) $errors[] = "The row $i has no tournament_id and no h1 either";
 				
 				//If there is a tournament ID we are going to try to re-use the same from the DB
-				if(!empty($t[10]) and is_numeric($t[10])){
+				if(!empty(trim($t[10])) and is_numeric($t[10])){
 					
 					//If the tournament is not in our database
 					if(!get_post($t[10])) $errors[] = "The tournament_id in the row $i was not found in the Database.";
@@ -268,7 +270,7 @@ class Calendar extends BasePostType{
 		$totalTournaments--;
 		//WPASAdminNotifier::addTransientMessage(Utils\BCNotification::ERROR,'There has been an error');
 		Notify::info($changes['ignored'].' out of '.$totalTournaments.' posts where ignored (because they had known ID).');
-		Notify::info($changes['created'].' out of '.$totalTournaments.' posts where created (because they had uknown ID and H1).');
+		Notify::info($changes['created'].' out of '.$totalTournaments.' posts where created because they had uknown ID and (date+h1).');
 		
 		$updateReason = 'no "Force Update" was enforced';
 		if($forceUpdate) $updateReason = ' because the "Force Update" options was enforced';
