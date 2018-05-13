@@ -22,3 +22,5 @@ $api->get([ 'path' => '/tournament/(?P<id>\d+)', 'controller' => 'SampleControll
 
 $api->get([ 'path' => '/calendar/(?P<id>\d+)', 'controller' => 'SampleController:getCalendar' ]); 
 $api->get([ 'path' => '/calendar/', 'controller' => 'SampleController:getAllCalendars' ]); 
+
+$api->get([ 'path' => '/settings/', 'controller' => 'SampleController:getSettings' ]); 

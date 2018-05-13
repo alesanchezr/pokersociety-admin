@@ -4,6 +4,7 @@ namespace Rigo\Controller;
 use Rigo\Types\Calendar;
 use Rigo\Types\Tournament;
 use Rigo\Types\Casino;
+use  WPAS\Settings\WPASThemeSettingsBuilder;
 
 class SampleController{
     
@@ -32,6 +33,13 @@ class SampleController{
             'posts_per_page' => -1
         ]);
         return $query->posts;
+    }
+    
+    public function getSettings(){
+        $settings = [
+            'mantainance_mode' => get_option( 'mantainance-mode' )
+        ];
+        return $settings;
     }
     
     public function getAllTournamentsFromCalendar(\WP_REST_Request $request){
