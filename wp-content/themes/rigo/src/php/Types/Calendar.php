@@ -52,7 +52,8 @@ class Calendar extends BasePostType{
     
 	function columns_header( $columns ) {
 		$columns = array_merge($columns, [
-			'json_file' => 'JSON File'
+			'json_file' => 'JSON File',
+			'preview' => 'Preview'
 		]);
 	
 		return $columns;
@@ -62,6 +63,9 @@ class Calendar extends BasePostType{
 			$upload = wp_upload_dir();
 			$uploadPath = $upload['baseurl'].'/static/poker-calendar-'.$post_ID.'.json';
 	        echo '<a target="_blank" href="' . $uploadPath . '">JSON</a>';
+	    }
+	    else if ($column_name == 'preview') {
+	        echo '<a target="_blank" href="'.PUBLIC_URL.'/calendar/'.$post_ID.'?preview">See live preview</a>';
 	    }
 	}
 

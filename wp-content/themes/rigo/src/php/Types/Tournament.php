@@ -16,11 +16,13 @@ class Tournament extends BasePostType{
     
 	function columns_header( $columns ) {
 		$columns = array_merge($columns, [
-			'calendar' => 'Calendar'
+			'calendar' => 'Calendar',
+			'preview' => 'Preview'
 		]);
 	
 		return $columns;
 	}
+	
 	
 	function columns_content($column_name, $post_ID) {
 	    if ($column_name == 'calendar') {
@@ -32,6 +34,9 @@ class Tournament extends BasePostType{
 	        else {
 	            echo 'none';
 	        }
+	    }
+	    else if ($column_name == 'preview') {
+	        echo '<a target="_blank" href="'.PUBLIC_URL.'/tournament/'.$post_ID.'?preview">Go to live preview</a>';
 	    }
 	}
     static function get($id){
@@ -58,6 +63,7 @@ class Tournament extends BasePostType{
         ]);
         return $query->posts;
     }
+    
 }
 
 ?>
