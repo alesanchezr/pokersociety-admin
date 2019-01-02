@@ -37,7 +37,7 @@ class ScheduleController{
             $this->_saveSchedules($request['username'], $schedules);
             return $schedules;
         }
-        catch(Exception $e){
+        catch(Exception $e){ 
             return new \WP_Error( 'error', $e->getMessage(), array( 'status' => $e->getCode() ) );
         }
         
