@@ -12,7 +12,7 @@ class ScheduleController{
     public function getUserSchedules(\WP_REST_Request $request){
         
         if(empty($request['username']))  return new \WP_Error( 'invalid_username', 'Invalid Username', array( 'status' => 400 ) );
-
+        
         $schedules = [];
         try{
             $schedules = $this->_getSchedules($request['username']);
@@ -28,6 +28,9 @@ class ScheduleController{
         if(!$schedules) return new \WP_Error( 'invalid_params', 'Invalid body params', array( 'status' => 400 ) );
         
         if(empty($request['username']))  return new \WP_Error( 'invalid_username', 'Invalid Username', array( 'status' => 400 ) );
+        
+        $user_id = username_exists( $request['username'] );
+        if(!$user_id) return new \WP_Error( 'invalid_user', 'Invalid User', array( 'status' => 400 ) );
         
         try{
             $schedules = $this->_validateSchedules($schedules);
@@ -70,6 +73,10 @@ class ScheduleController{
     }
     
     private function _getSchedules($userName){
+        
+        $user_id = username_exists( $userName );
+        if(!$user_id) throw new Exception('Schedules not found for user '.$userName, 404);
+        
 		$upload = wp_upload_dir();
 		
 		if(!file_exists($upload['basedir'].'/static/schedules/'.$userName.'.json'))
