@@ -24,3 +24,8 @@ $api->get([ 'path' => '/calendar/(?P<id>\d+)', 'controller' => 'SampleController
 $api->get([ 'path' => '/calendar/', 'controller' => 'SampleController:getAllCalendars' ]); 
 
 $api->get([ 'path' => '/settings/', 'controller' => 'SampleController:getSettings' ]); 
+
+$api->post([ 'path' => '/signup', 'controller' => 'SampleController:signup' ]); 
+
+$api->get([ 'path' => '/schedules/(?P<username>\w+)', 'controller' => 'ScheduleController:getUserSchedules' ]); 
+$api->post([ 'path' => '/schedules/(?P<username>\w+)', 'controller' => 'ScheduleController:saveUserSchedules' ]); 

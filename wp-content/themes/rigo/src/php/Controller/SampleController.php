@@ -76,5 +76,24 @@ class SampleController{
         return $post;
     }
     
+    public function signup(\WP_REST_Request $request){
+        $body = (array) json_decode($request->get_body());
+        if(!$body) return new \WP_Error( 'invalid_params', 'Invalid body params', array( 'status' => 400 ) );
+        
+        
+        if(empty($body['username'])) return new \WP_Error( 'invalid_username', 'Invalid Username', array( 'status' => 400 ) );
+        if(empty($body['password'])) return new \WP_Error( 'invalid_password', 'Invalid Password', array( 'status' => 400 ) );
+        if(empty($body['email'])) return new \WP_Error( 'invalid_email', 'Invalid Email', array( 'status' => 400 ) );
+        
+        $user_id = username_exists( $body['username'] );
+        if ( !$user_id and email_exists($body['email']) == false ) {
+        	$body["user_id"] = wp_create_user( $body['username'], $body['password'], $body['email'] );
+        } else {
+        	return new \WP_Error( 'already_exists', 'User already exists.', array( 'status' => 400 ) );
+        }
+        
+        return $body;
+    }
+    
 }
 ?>
